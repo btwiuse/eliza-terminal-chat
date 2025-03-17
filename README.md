@@ -10,18 +10,28 @@ A command-line interface for chatting with Eliza agents using Deno.
 
 No installation needed! The script runs directly with Deno.
 
+## Bash Alias Function
+
+To simplify running the script, you can define a bash alias function:
+
+```bash
+function etc(){
+  env "${SERVER_URL:-http://localhost:3000}" deno run -A https://raw.githubusercontent.com/btwiuse/eliza-terminal-chat/refs/heads/main/terminal-chat.ts "$@"
+}
+```
+
 ## Usage
 
 You can run the script in two ways:
 
 1. Specify an agent name:
 ```bash
-env SERVER_URL=http://localhost:3000 ./terminal-chat.ts trump
+etc trump
 ```
 
 2. Let it automatically select the first available agent:
 ```bash
-env SERVER_URL=http://localhost:3000 ./terminal-chat.ts
+etc
 ```
 
 ## Environment Variables
