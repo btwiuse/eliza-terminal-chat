@@ -39,7 +39,7 @@ async function getAgentId(requestedName?: string): Promise<string> {
     return agent.id;
   } catch (error) {
     log.error("Failed to fetch agents:", error);
-    Deno.exit(1);
+    await gracefulExit();
   }
 }
 
@@ -70,6 +70,7 @@ async function handleUserInput(input: string, agentId: string) {
     );
   } catch (error) {
     log.error("Error fetching response:", error);
+    await gracefulExit();
   }
 }
 
