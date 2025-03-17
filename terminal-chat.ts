@@ -12,9 +12,17 @@ const log = {
   info: (...args: unknown[]) => console.log(...args),
   error: (...args: unknown[]) => console.error(...args),
   warn: (...args: unknown[]) => console.warn(...args),
+  debug: (...args: unknown[]) => {
+    if (Deno.env.get("DEBUG")) console.debug(...args);
+  },
 };
 
-async function getAgentId(requestedName?: string): Promise<string> {
+interface Agent {
+  id: string;
+  name: string;
+}
+
+async function getAgent(requestedName?: string): Promise<Agent> {
   try {
     const response = await fetch(`${SERVER_URL}/agents`);
     const data = await response.json();
@@ -28,7 +36,7 @@ async function getAgentId(requestedName?: string): Promise<string> {
       if (data.agents.length > 1) {
         log.warn(`Multiple agents found, using the first one: ${data.agents[0].name}`);
       }
-      return data.agents[0].id;
+      return data.agents[0];
     }
 
     const agent = data.agents.find((a: { name: string }) => a.name === requestedName);
@@ -36,7 +44,7 @@ async function getAgentId(requestedName?: string): Promise<string> {
       log.error(`No agent found with name: ${requestedName}`);
       Deno.exit(1);
     }
-    return agent.id;
+    return agent;
   } catch (error) {
     log.error("Failed to fetch agents:", error);
     await gracefulExit();
@@ -44,7 +52,7 @@ async function getAgentId(requestedName?: string): Promise<string> {
 }
 
 async function handleUserInput(input: string, agentId: string) {
-  log.info("handleUserInput", input, agentId);
+  log.debug("handleUserInput", input, agentId);
   if (input.toLowerCase() === "exit") {
     await gracefulExit();
   }
@@ -64,9 +72,10 @@ async function handleUserInput(input: string, agentId: string) {
     );
 
     const data = await response.json();
-    log.info("data: ", data);
+    log.debug("data: ", data);
     data.forEach((message: { text: string }) =>
-      log.info(`Agent: ${message.text}`)
+      log.info(`Agent::${message.user}::${message.action}: ${message.text}`)
+      log.info("");
     );
   } catch (error) {
     log.error("Error fetching response:", error);
@@ -81,9 +90,11 @@ async function readLine(): Promise<string> {
   return decoder.decode(buf.subarray(0, n)).trim();
 }
 
-async function chat(agentId: string) {
-  log.info("chat");
-  log.info("agentId: ", agentId);
+async function chat(agent: Agent) {
+  log.debug("chat");
+  log.info(`Agent Name: ${agent.name}`);
+  log.info(`Agent ID: ${agent.id}`);
+  log.info("");
 
   while (true) {
     await Deno.stdout.write(encoder.encode("You: "));
@@ -104,8 +115,8 @@ Deno.addSignalListener("SIGINT", gracefulExit);
 // Main
 if (import.meta.main) {
   const agentName = Deno.args[0];
-  const agentId = await getAgentId(agentName);
+  const agent = await getAgent(agentName);
   log.info("Chat started. Type 'exit' to quit.");
   log.info(""); // Empty line
-  await chat(agentId);
+  await chat(agent);
 }
