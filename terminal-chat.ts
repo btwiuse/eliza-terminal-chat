@@ -80,7 +80,7 @@ async function handleUserInput(input: string, agent: Agent) {
     const data = await response.json();
     log.debug("data: ", data);
     data.forEach((message: Message) => {
-      log.info(`Agent::${message.user}::${message.action}: ${message.text}`);
+      log.info(`Agent::<${message.user}>::${message.action}: ${message.text}`);
       log.info("");
     });
   } catch (error) {
@@ -105,6 +105,7 @@ async function chat(agent: Agent) {
   while (true) {
     await Deno.stdout.write(encoder.encode("You: "));
     const input = await readLine();
+    log.info("");
     await handleUserInput(input, agent);
     if (input.toLowerCase() === "exit") break;
   }
