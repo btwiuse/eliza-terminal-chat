@@ -17,7 +17,7 @@ To simplify running the script, you can define a bash alias function:
 
 ```bash
 function etc(){
-  env SERVER_URL="${SERVER_URL:-http://localhost:3000}" rlwrap npx -y deno run -rA https://btwiuse.github.io/eliza-terminal-chat/terminal-chat.ts "$@"
+  env SERVER_URL="${SERVER_URL:-http://localhost:3000}" rlwrap npx -y deno run --allow-env=DEBUG,SERVER_URL --allow-net https://btwiuse.github.io/eliza-terminal-chat/terminal-chat.ts "$@"
 }
 ```
 
