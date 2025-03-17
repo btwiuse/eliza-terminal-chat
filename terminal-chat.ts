@@ -22,6 +22,12 @@ interface Agent {
   name: string;
 }
 
+interface Message {
+  user: string;
+  action: string;
+  text: string;
+}
+
 async function getAgent(requestedName?: string): Promise<Agent> {
   try {
     const response = await fetch(`${SERVER_URL}/agents`);
@@ -73,10 +79,10 @@ async function handleUserInput(input: string, agentId: string) {
 
     const data = await response.json();
     log.debug("data: ", data);
-    data.forEach((message: { text: string }) =>
+    data.forEach((message: Message) => {
       log.info(`Agent::${message.user}::${message.action}: ${message.text}`);
       log.info("");
-    );
+    });
   } catch (error) {
     log.error("Error fetching response:", error);
     await gracefulExit();
