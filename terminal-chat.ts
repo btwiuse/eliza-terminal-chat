@@ -57,15 +57,15 @@ async function getAgent(requestedName?: string): Promise<Agent> {
   }
 }
 
-async function handleUserInput(input: string, agentId: string) {
-  log.debug("handleUserInput", input, agentId);
+async function handleUserInput(input: string, agent: Agent) {
+  log.debug("handleUserInput", input, agent.name, agent.id);
   if (input.toLowerCase() === "exit") {
     await gracefulExit();
   }
 
   try {
     const response = await fetch(
-      `${SERVER_URL}/${agentId}/message`,
+      `${SERVER_URL}/${agent.id}/message`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@ async function chat(agent: Agent) {
   while (true) {
     await Deno.stdout.write(encoder.encode("You: "));
     const input = await readLine();
-    await handleUserInput(input, agentId);
+    await handleUserInput(input, agent);
     if (input.toLowerCase() === "exit") break;
   }
 }
